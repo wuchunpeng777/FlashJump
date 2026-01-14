@@ -1,15 +1,146 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin url="https://github.com/wuchunpeng777/FlashJump">
     <id>com.github.wuchunpeng777.flashjump</id>
     <name>FlashJump</name>
-    <vendor>wuchunpeng777</vendor>
-
+    <vendor url="https://github.com/wuchunpeng777">wuchunpeng777</vendor>
+    
+    <description><![CDATA[
+    FlashJump - 类似 flash.nvim 的快速跳转插件
+    
+    使用搜索标签快速导航代码。输入搜索字符，然后输入显示的标签即可跳转。
+    
+    功能特点：
+    - 实时搜索匹配
+    - 智能标签分配（距离光标近的优先分配简单标签）
+    - 多编辑器窗口支持
+    - 多种跳转模式（普通跳转、选择模式、行跳转等）
+    - 可自定义配置
+    
+    快捷键：
+    - Ctrl+; 激活/循环跳转模式
+    - Ctrl+Alt+; 目标选择模式
+    - Ctrl+Shift+; 行跳转模式
+    - ESC 取消跳转
+    ]]></description>
+    
     <depends>com.intellij.modules.platform</depends>
-
-    <resource-bundle>messages.MyBundle</resource-bundle>
-
+    
+    
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.wuchunpeng777.flashjump.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.wuchunpeng777.flashjump.startup.MyProjectActivity" />
+        <!-- 配置服务 -->
+        <applicationService serviceImplementation="com.github.wuchunpeng777.flashjump.config.FlashConfig"/>
+        
+        <!-- 配置面板 -->
+        <applicationConfigurable 
+            groupId="tools" 
+            displayName="FlashJump"
+            instance="com.github.wuchunpeng777.flashjump.config.FlashConfigurable"
+            id="preferences.FlashJumpConfigurable" 
+            dynamic="true"/>
+        
+        <!-- 编辑器动作处理器 -->
+        <editorActionHandler action="EditorEscape" order="first"
+            implementationClass="com.github.wuchunpeng777.flashjump.action.FlashEditorAction$Reset"
+            id="FlashHandlerEscape"/>
+        <editorActionHandler action="EditorBackSpace" order="first"
+            implementationClass="com.github.wuchunpeng777.flashjump.action.FlashEditorAction$ClearSearch"
+            id="FlashHandlerBackSpace"/>
+        <editorActionHandler action="EditorEnter" order="first"
+            implementationClass="com.github.wuchunpeng777.flashjump.action.FlashEditorAction$SelectForward"
+            id="FlashHandlerEnter"/>
     </extensions>
+    
+    <actions>
+        <!-- 主要激活动作 -->
+        <action id="FlashJump.Activate"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$ActivateOrCycleMode"
+                text="激活 / 循环 FlashJump 模式"
+                description="激活 FlashJump 或切换到下一个跳转模式">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl SEMICOLON"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl SEMICOLON"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl SEMICOLON"/>
+        </action>
+        
+        <action id="FlashJump.ActivateReverse"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$ActivateOrReverseCycleMode"
+                text="激活 / 反向循环 FlashJump 模式"
+                description="激活 FlashJump 或切换到上一个跳转模式"/>
+        
+        <!-- 跳转模式动作 -->
+        <action id="FlashJump.JumpMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$ToggleJumpMode"
+                text="开始普通跳转模式"
+                description="启动 FlashJump 普通跳转模式"/>
+        
+        <action id="FlashJump.JumpEndMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$ToggleJumpEndMode"
+                text="开始跳转到结尾模式"
+                description="启动 FlashJump 跳转到匹配结尾模式"/>
+        
+        <action id="FlashJump.TargetMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$ToggleTargetMode"
+                text="开始目标选择模式"
+                description="启动 FlashJump 目标选择模式（选中文本）">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt SEMICOLON"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt SEMICOLON"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl alt SEMICOLON"/>
+        </action>
+        
+        <action id="FlashJump.ForwardMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$ToggleForwardJumpMode"
+                text="开始向前跳转模式"
+                description="启动 FlashJump 向前跳转模式（只搜索光标之后）"/>
+        
+        <action id="FlashJump.BackwardMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$ToggleBackwardJumpMode"
+                text="开始向后跳转模式"
+                description="启动 FlashJump 向后跳转模式（只搜索光标之前）"/>
+        
+        <!-- 行跳转动作 -->
+        <action id="FlashJump.LineMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$StartAllLineMarksMode"
+                text="开始行标记模式"
+                description="启动 FlashJump 行标记模式（跳转到任意行）">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift SEMICOLON"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift SEMICOLON"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl shift SEMICOLON"/>
+        </action>
+        
+        <action id="FlashJump.LineStartsMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$StartAllLineStartsMode"
+                text="开始行首模式"
+                description="启动 FlashJump 行首跳转模式"/>
+        
+        <action id="FlashJump.LineEndsMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$StartAllLineEndsMode"
+                text="开始行尾模式"
+                description="启动 FlashJump 行尾跳转模式"/>
+        
+        <action id="FlashJump.LineIndentsMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$StartAllLineIndentsMode"
+                text="开始行缩进模式"
+                description="启动 FlashJump 行缩进跳转模式"/>
+        
+        <!-- 单词跳转动作 -->
+        <action id="FlashJump.WordMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$StartAllWordsMode"
+                text="开始所有单词模式"
+                description="启动 FlashJump 所有单词跳转模式"/>
+        
+        <action id="FlashJump.WordForwardMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$StartAllWordsForwardMode"
+                text="开始向前单词模式"
+                description="启动 FlashJump 向前单词跳转模式"/>
+        
+        <action id="FlashJump.WordBackwardMode"
+                class="com.github.wuchunpeng777.flashjump.action.FlashAction$StartAllWordsBackwardsMode"
+                text="开始向后单词模式"
+                description="启动 FlashJump 向后单词跳转模式"/>
+        
+        <!-- 重置动作 -->
+        <action id="FlashJump.Reset"
+                class="com.github.wuchunpeng777.flashjump.action.FlashResetAction"
+                text="重置 FlashJump"
+                description="取消当前 FlashJump 会话"/>
+    </actions>
 </idea-plugin>

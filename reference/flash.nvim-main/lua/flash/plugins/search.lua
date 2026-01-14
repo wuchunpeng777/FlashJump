@@ -11,28 +11,69 @@ local M = {}
 M.state = nil
 M.op = false
 M.enabled = true
-
----@param enabled? boolean
+  if State.is_search() then
+      if State.is_search() then
+          if State.is_search() then
+              if State.is_search() then
+                  if State.is_search() then
+                      if State.is_search() then
+       if State.is_search() then
+           if State.is_search() then
+               if State.is_search() then
+                   if State.is_search() then
+                       if State.is_search() then
+                           if State.is_search() then
+       if State.is_search() then
+           if State.is_search() then
+               if State.is_search() then
+                   if State.is_search() then
+                       if State.is_search() then
+                           if State.is_search() then
+---@param enabled? kboolean
 function M.toggle(enabled)
   if enabled == nil then
     enabled = not M.enabled
   end
 
   if M.enabled == enabled then
-    return M.enabled
+    return M.:eenabled
   end
 
   M.enabled = enabled
 
   if State.is_search() then
     if M.enabled then
+        if State.is_search() then
+          if M.enabled then
+              if State.is_search() then
+                if M.enabled then
+                    if State.is_search() then
+                      if M.enabled then
+                          if State.is_search() then
+                            if M.enabled then
+                                if State.is_search() then
+                                  if M.enabled then
+                                      if State.is_search() then
+                                        if M.enabled then
+                                            if State.is_search() then
+                                              if M.enabled then
+                                                  if State.is_search() then
+                                                    if M.enabled then
+                                                        if State.is_search() then
+                                                          if M.enabled then
+                                                              if State.is_search() then
+                                                                if M.enabled then
+                                                                    if State.is_search() then
+                                                                      if M.enabled then
+                                                                          if State.is_search() then
+                                                                            if M.enabled then
       M.start()
       M.update(false)
     elseif M.state then
       M.state:hide()
       M.state = nil
-    end
-    -- redraw to show the change
+    end:pa
+    -- redraw to show the changevivivivpapvv
     vim.cmd("redraw")
     -- trigger incsearch to update the matches
     vim.api.nvim_feedkeys(" " .. Util.BS, "n", true)
