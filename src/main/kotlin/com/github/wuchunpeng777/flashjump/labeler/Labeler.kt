@@ -1,5 +1,6 @@
 package com.github.wuchunpeng777.flashjump.labeler
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.github.wuchunpeng777.flashjump.config.FlashConfig
 import com.github.wuchunpeng777.flashjump.search.SearchMatch
@@ -10,6 +11,8 @@ import com.github.wuchunpeng777.flashjump.search.SearchMatch
  * 支持多字符标签（当匹配项超过单字符标签数量时）
  */
 class Labeler(private val mainEditor: Editor) {
+    
+    private val LOG = Logger.getInstance(Labeler::class.java)
     
     private val labelToMatch = mutableMapOf<String, SearchMatch>()
     
@@ -113,11 +116,19 @@ class Labeler(private val mainEditor: Editor) {
         
         for (match in matches) {
             val text = match.editor.document.charsSequence
-            val nextCharOffset = match.startOffset + pattern.length
+            // 使用 endOffset 而不是 startOffset + pattern.length，确保正确获取下一个字符
+            val nextCharOffset = match.endOffset
             if (nextCharOffset < text.length) {
-                skipChars.add(text[nextCharOffset].lowercaseChar().toString())
+                val nextChar = text[nextCharOffset]
+                // 排除字母和数字，这些可能是用户想继续输入的搜索字符
+                if (nextChar.isLetterOrDigit()) {
+                    skipChars.add(nextChar.lowercaseChar().toString())
+                    skipChars.add(nextChar.uppercaseChar().toString())
+                }
             }
         }
+        
+        LOG.info("FlashJump: skipChars for pattern '$pattern': $skipChars")
         
         // 过滤掉会冲突的标签
         return allLabels.filter { label -> label !in skipChars }
