@@ -1,10 +1,22 @@
 package com.github.wuchunpeng777.flashjump.input
 
+import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.TypedAction
 import com.intellij.openapi.editor.actionSystem.TypedActionHandler
 import com.intellij.openapi.diagnostic.Logger
+import java.awt.AWTEvent
+import java.awt.event.KeyEvent
+
+/**
+ * 特殊按键回调接口
+ */
+interface SpecialKeyHandler {
+    fun onEnter()
+    fun onEscape()
+    fun onBackspace()
+}
 
 /**
  * 编辑器键盘监听器
@@ -14,7 +26,9 @@ internal object EditorKeyListener : TypedActionHandler {
     private val LOG = Logger.getInstance(EditorKeyListener::class.java)
     
     private val attached = mutableMapOf<Editor, TypedActionHandler>()
+    private val specialHandlers = mutableMapOf<Editor, SpecialKeyHandler>()
     private var originalHandler: TypedActionHandler? = null
+    private var eventDispatcher: IdeEventQueue.EventDispatcher? = null
     
     override fun execute(editor: Editor, charTyped: Char, dataContext: DataContext) {
         val handler = attached[editor]
@@ -29,7 +43,7 @@ internal object EditorKeyListener : TypedActionHandler {
     /**
      * 附加键盘监听到编辑器
      */
-    fun attach(editor: Editor, callback: TypedActionHandler) {
+    fun attach(editor: Editor, callback: TypedActionHandler, specialCallback: SpecialKeyHandler? = null) {
         if (attached.isEmpty()) {
             @Suppress("DEPRECATION")
             val typedAction = TypedAction.getInstance()
@@ -39,6 +53,58 @@ internal object EditorKeyListener : TypedActionHandler {
         }
         
         attached[editor] = callback
+        
+        // 添加特殊按键监听（使用 IdeEventQueue 在最早阶段拦截）
+        if (specialCallback != null) {
+            specialHandlers[editor] = specialCallback
+            
+            if (eventDispatcher == null) {
+                eventDispatcher = IdeEventQueue.EventDispatcher { event ->
+                    handleEvent(event)
+                }
+                IdeEventQueue.getInstance().addDispatcher(eventDispatcher!!, null)
+                LOG.info("FlashJump: registered event dispatcher")
+            }
+        }
+    }
+    
+    /**
+     * 处理事件
+     */
+    private fun handleEvent(event: AWTEvent): Boolean {
+        if (event !is KeyEvent || event.id != KeyEvent.KEY_PRESSED) {
+            return false
+        }
+        
+        // 查找当前活动的编辑器
+        val activeEditor = attached.keys.firstOrNull { editor ->
+            !editor.isDisposed && editor.contentComponent.isFocusOwner
+        } ?: return false
+        
+        val handler = specialHandlers[activeEditor] ?: return false
+        
+        when (event.keyCode) {
+            KeyEvent.VK_ENTER -> {
+                LOG.info("FlashJump: Enter key intercepted")
+                event.consume()
+                handler.onEnter()
+                return true
+            }
+            KeyEvent.VK_ESCAPE -> {
+                LOG.info("FlashJump: Escape key intercepted")
+                event.consume()
+                handler.onEscape()
+                return true
+            }
+            KeyEvent.VK_BACK_SPACE -> {
+                LOG.info("FlashJump: Backspace key intercepted")
+                event.consume()
+                handler.onBackspace()
+                return true
+            }
+        }
+        
+        return false
     }
     
     /**
@@ -46,11 +112,20 @@ internal object EditorKeyListener : TypedActionHandler {
      */
     fun detach(editor: Editor) {
         attached.remove(editor)
+        specialHandlers.remove(editor)
         
         if (attached.isEmpty()) {
             @Suppress("DEPRECATION")
             originalHandler?.let(TypedAction.getInstance()::setupRawHandler)
             originalHandler = null
+            
+            // 移除事件分发器
+            eventDispatcher?.let {
+                IdeEventQueue.getInstance().removeDispatcher(it)
+                eventDispatcher = null
+                LOG.info("FlashJump: removed event dispatcher")
+            }
+            
             LOG.info("FlashJump: detached keyboard listener")
         }
     }

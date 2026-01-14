@@ -11,6 +11,7 @@ import com.github.wuchunpeng777.flashjump.boundaries.StandardBoundaries
 import com.github.wuchunpeng777.flashjump.config.FlashConfig
 import com.github.wuchunpeng777.flashjump.input.EditorKeyListener
 import com.github.wuchunpeng777.flashjump.input.JumpMode
+import com.github.wuchunpeng777.flashjump.input.SpecialKeyHandler
 import com.github.wuchunpeng777.flashjump.input.JumpModeTracker
 import com.github.wuchunpeng777.flashjump.labeler.Labeler
 import com.github.wuchunpeng777.flashjump.labeler.LabelResult
@@ -68,11 +69,78 @@ class Session(
         originalCaretColor = mainEditor.colorsScheme.getColor(EditorColors.CARET_COLOR)
         
         // 设置键盘监听
-        EditorKeyListener.attach(mainEditor, object : TypedActionHandler {
-            override fun execute(editor: Editor, charTyped: Char, context: DataContext) {
-                handleTypedChar(charTyped)
+        EditorKeyListener.attach(
+            mainEditor,
+            object : TypedActionHandler {
+                override fun execute(editor: Editor, charTyped: Char, context: DataContext) {
+                    handleTypedChar(charTyped)
+                }
+            },
+            object : SpecialKeyHandler {
+                override fun onEnter() {
+                    handleEnter()
+                }
+                
+                override fun onEscape() {
+                    handleEscape()
+                }
+                
+                override fun onBackspace() {
+                    handleBackspace()
+                }
             }
-        })
+        )
+    }
+    
+    /**
+     * 处理 Enter 键
+     */
+    private fun handleEnter() {
+        LOG.info("FlashJump: handleEnter, hasLabels=${labeler.hasLabels()}")
+        if (!labeler.hasLabels()) {
+            // 没有显示标签时，退出
+            end(JumpResult.Cancelled)
+        } else {
+            // 有标签时，跳转到默认匹配项
+            val match = defaultMatch
+            if (match != null) {
+                performJump(match)
+            } else {
+                end(JumpResult.Cancelled)
+            }
+        }
+    }
+    
+    /**
+     * 处理 Escape 键
+     */
+    private fun handleEscape() {
+        LOG.info("FlashJump: handleEscape")
+        end(JumpResult.Cancelled)
+    }
+    
+    /**
+     * 处理 Backspace 键
+     */
+    private fun handleBackspace() {
+        LOG.info("FlashJump: handleBackspace, currentPattern='$currentPattern'")
+        if (currentPattern.isNotEmpty()) {
+            // 删除最后一个字符
+            currentPattern = currentPattern.dropLast(1)
+            
+            if (currentPattern.isEmpty()) {
+                // 清空搜索，重置状态
+                restart()
+            } else {
+                // 重新搜索
+                searchProcessor?.search(SearchQuery.Literal(currentPattern))
+                labeler.resetPrefix()
+                updateSearch()
+            }
+        } else {
+            // 没有搜索内容时，退出
+            end(JumpResult.Cancelled)
+        }
     }
     
     /**

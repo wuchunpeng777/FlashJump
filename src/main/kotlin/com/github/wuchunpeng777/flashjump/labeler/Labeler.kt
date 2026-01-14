@@ -212,6 +212,13 @@ class Labeler(private val mainEditor: Editor) {
     }
     
     /**
+     * 检查是否有已分配的标签
+     */
+    fun hasLabels(): Boolean {
+        return labelToMatch.isNotEmpty()
+    }
+    
+    /**
      * 获取所有已分配标签的匹配
      */
     fun getLabeledMatches(): List<SearchMatch> {
