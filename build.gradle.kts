@@ -1,6 +1,7 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import java.io.File
 
 plugins {
     id("java") // Java support
@@ -92,6 +93,8 @@ intellijPlatform {
         certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
         privateKey = providers.environmentVariable("PRIVATE_KEY")
         password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
+        certificateChainFile = layout.file(providers.environmentVariable("CERTIFICATE_CHAIN_FILE").map(::File))
+        privateKeyFile = layout.file(providers.environmentVariable("PRIVATE_KEY_FILE").map(::File))
     }
 
     publishing {
