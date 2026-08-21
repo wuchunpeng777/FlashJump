@@ -27,6 +27,10 @@ Default shortcuts:
 FlashJump 是一个面向 JetBrains IDE 的键盘快速跳转插件。输入搜索字符，再按目标位置显示的标签即可完成跳转。
 <!-- Plugin description end -->
 
+## Demo
+
+![FlashJump screenshot](screenshot.gif)
+
 ## Requirements
 
 - A JetBrains IDE based on IntelliJ Platform 2025.2 or later.
