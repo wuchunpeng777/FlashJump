@@ -1,52 +1,70 @@
 # FlashJump
 
 ![Build](https://github.com/wuchunpeng777/FlashJump/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
-- [ ] Configure the [CODECOV_TOKEN](https://docs.codecov.com/docs/quick-start) secret for automated test coverage reports on PRs
 
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+FlashJump provides keyboard-driven label navigation for JetBrains IDEs.
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
+Type a search character, then press the label displayed at the destination to jump there without leaving the keyboard.
 
-To keep everything working, do not remove `<!-- ... -->` sections. 
+Features:
+
+- Real-time, case-insensitive matching.
+- Distance-aware labels that keep nearby targets easy to reach.
+- Character, word, line, forward, backward, jump-end, and selection modes.
+- Navigation across multiple editor windows.
+- Configurable labels, colors, search range, highlighting, backdrop, and automatic jump behavior.
+
+Default shortcuts:
+
+- <kbd>Ctrl+;</kbd> — activate FlashJump or cycle to the next jump mode.
+- <kbd>Ctrl+Alt+;</kbd> — start target selection mode.
+- <kbd>Ctrl+Shift+;</kbd> — start line jump mode.
+- <kbd>Enter</kbd> — jump to the default match.
+- <kbd>Backspace</kbd> — clear the current search and start again.
+- <kbd>Esc</kbd> — cancel the active FlashJump session.
+
+FlashJump 是一个面向 JetBrains IDE 的键盘快速跳转插件。输入搜索字符，再按目标位置显示的标签即可完成跳转。
 <!-- Plugin description end -->
+
+## Requirements
+
+- A JetBrains IDE based on IntelliJ Platform 2025.2 or later.
 
 ## Installation
 
-- Using the IDE built-in plugin system:
+### JetBrains Marketplace
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "FlashJump"</kbd> >
-  <kbd>Install</kbd>
+After the plugin is approved, open <kbd>Settings</kbd> → <kbd>Plugins</kbd> → <kbd>Marketplace</kbd>, search for **FlashJump**, and select <kbd>Install</kbd>.
 
-- Using JetBrains Marketplace:
+### GitHub release
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+Download the ZIP from the [latest GitHub release](https://github.com/wuchunpeng777/FlashJump/releases/latest), then open <kbd>Settings</kbd> → <kbd>Plugins</kbd> → <kbd>⚙</kbd> → <kbd>Install Plugin from Disk...</kbd>. Select the downloaded ZIP without extracting it.
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+## Usage
 
-- Manually:
+1. Place the caret in an editor.
+2. Press <kbd>Ctrl+;</kbd>.
+3. Type the text to search for.
+4. Press the label shown at the desired destination.
 
-  Download the [latest release](https://github.com/wuchunpeng777/FlashJump/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+Every FlashJump action is also available from <kbd>Find Action</kbd> and can be reassigned under <kbd>Settings</kbd> → <kbd>Keymap</kbd>.
 
+## Configuration
 
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
+Open <kbd>Settings</kbd> → <kbd>Tools</kbd> → <kbd>FlashJump</kbd> to configure:
 
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
+- Label characters and uppercase labels.
+- Minimum search length.
+- Match highlighting and backdrop.
+- Label, highlight, and default-match colors.
+- Visible-area or whole-file search.
+- Multi-window search and automatic jump behavior.
+
+## Support
+
+Report reproducible problems and feature requests through [GitHub Issues](https://github.com/wuchunpeng777/FlashJump/issues).
+
+## License
+
+FlashJump is available under the [MIT License](LICENSE).
