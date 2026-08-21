@@ -50,6 +50,14 @@ Download the ZIP from the [latest GitHub release](https://github.com/wuchunpeng7
 
 Every FlashJump action is also available from <kbd>Find Action</kbd> and can be reassigned under <kbd>Settings</kbd> → <kbd>Keymap</kbd>.
 
+### IdeaVim
+
+To configure a custom trigger key in your IdeaVim configuration file (`~/.ideavimrc`), map the desired key to the FlashJump activation action. For example, use `f` as the trigger key:
+
+```vim
+map f <Action>(FlashJump.Activate)
+```
+
 ## Configuration
 
 Open <kbd>Settings</kbd> → <kbd>Tools</kbd> → <kbd>FlashJump</kbd> to configure:
