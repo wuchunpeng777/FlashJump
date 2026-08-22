@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-08-22
+
+### Changed
+
+- Translated the FlashJump settings page into English.
+
 ## [0.0.4] - 2026-08-21
 
 ### Added
