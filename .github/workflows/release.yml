@@ -6,6 +6,12 @@ name: Release
 on:
   release:
     types: [prereleased, released]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag to publish
+        required: true
+        default: 0.0.5
 
 jobs:
 
@@ -29,7 +35,7 @@ jobs:
       - name: Fetch Sources
         uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event.release.tag_name || inputs.release_tag }}
 
       # Set up the Java environment for the next steps
       - name: Setup Java
@@ -43,6 +49,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
         with:
           cache-read-only: true
+
+      # Materialize signing files only inside the ephemeral runner.
+      - name: Prepare Signing Files
+        env:
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          printf '%s' "$CERTIFICATE_CHAIN" > "$RUNNER_TEMP/certificate-chain.pem"
+          printf '%s' "$PRIVATE_KEY" > "$RUNNER_TEMP/private-key.pem"
+          chmod 600 "$RUNNER_TEMP/certificate-chain.pem" "$RUNNER_TEMP/private-key.pem"
 
       # Update the Unreleased section with the current release note
       - name: Patch Changelog
@@ -60,8 +76,8 @@ jobs:
       - name: Publish Plugin
         env:
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          CERTIFICATE_CHAIN_FILE: ${{ runner.temp }}/certificate-chain.pem
+          PRIVATE_KEY_FILE: ${{ runner.temp }}/private-key.pem
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
         run: ./gradlew publishPlugin
 
@@ -69,15 +85,15 @@ jobs:
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*
+        run: gh release upload ${{ github.event.release.tag_name || inputs.release_tag }} ./build/distributions/*
 
       # Create a pull request
       - name: Create Pull Request
-        if: ${{ github.event.release.body != '' }}
+        if: ${{ github.event_name == 'release' && github.event.release.body != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${{ github.event.release.tag_name || inputs.release_tag }}"
           BRANCH="changelog-update-$VERSION"
           LABEL="release changelog"
 

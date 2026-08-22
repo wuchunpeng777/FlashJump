@@ -90,13 +90,10 @@ intellijPlatform {
     }
 
     signing {
-        certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
-        privateKey = providers.environmentVariable("PRIVATE_KEY")
         password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
         certificateChainFile = layout.file(providers.environmentVariable("CERTIFICATE_CHAIN_FILE").map(::File))
         privateKeyFile = layout.file(providers.environmentVariable("PRIVATE_KEY_FILE").map(::File))
     }
-
     publishing {
         token = providers.environmentVariable("PUBLISH_TOKEN")
         // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
