@@ -75,11 +75,14 @@ jobs:
       # Publish the plugin to JetBrains Marketplace
       - name: Publish Plugin
         env:
-          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          PUBLISH_TOKEN_RAW: ${{ secrets.PUBLISH_TOKEN }}
           CERTIFICATE_CHAIN_FILE: ${{ runner.temp }}/certificate-chain.pem
           PRIVATE_KEY_FILE: ${{ runner.temp }}/private-key.pem
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
-        run: ./gradlew publishPlugin
+        run: |
+          export PUBLISH_TOKEN="$(printf '%s' "$PUBLISH_TOKEN_RAW" | tr -d '\357\273\277\r\n')"
+          echo "::add-mask::$PUBLISH_TOKEN"
+          ./gradlew publishPlugin
 
       # Upload an artifact as a release asset
       - name: Upload Release Asset
