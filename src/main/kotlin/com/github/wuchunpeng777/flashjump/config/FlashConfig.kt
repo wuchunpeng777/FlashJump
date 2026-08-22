@@ -119,7 +119,7 @@ class ColorButton(initialColor: Color) : JButton() {
         isBorderPainted = true
         
         addActionListener {
-            val newColor = JColorChooser.showDialog(this, "选择颜色", selectedColor)
+            val newColor = JColorChooser.showDialog(this, "Choose Color", selectedColor)
             if (newColor != null) {
                 selectedColor = newColor
             }
@@ -156,7 +156,7 @@ class FlashConfigurable : Configurable {
             // 标签字符
             add(JPanel().apply {
                 layout = BoxLayout(this, BoxLayout.X_AXIS)
-                add(JLabel("跳转标签字符: "))
+                add(JLabel("Label Characters: "))
                 labelsField = JTextField(config.labels, 30).also { add(it) }
                 add(Box.createHorizontalGlue())
             })
@@ -166,7 +166,7 @@ class FlashConfigurable : Configurable {
             // 最小搜索长度
             add(JPanel().apply {
                 layout = BoxLayout(this, BoxLayout.X_AXIS)
-                add(JLabel("最小搜索长度: "))
+                add(JLabel("Minimum Search Length: "))
                 minPatternLengthSpinner = JSpinner(SpinnerNumberModel(config.minPatternLength, 0, 10, 1)).also { add(it) }
                 add(Box.createHorizontalGlue())
             })
@@ -176,15 +176,15 @@ class FlashConfigurable : Configurable {
             // 颜色配置区域
             add(JPanel().apply {
                 layout = BoxLayout(this, BoxLayout.Y_AXIS)
-                border = BorderFactory.createTitledBorder("颜色设置")
+                border = BorderFactory.createTitledBorder("Colors")
                 
                 // 标签背景色
                 add(JPanel().apply {
                     layout = BoxLayout(this, BoxLayout.X_AXIS)
-                    add(JLabel("标签背景色: "))
+                    add(JLabel("Label Background: "))
                     labelBgColorButton = ColorButton(Color(config.labelBackgroundColor)).also { add(it) }
                     add(Box.createHorizontalStrut(20))
-                    add(JLabel("标签文字色: "))
+                    add(JLabel("Label Text: "))
                     labelFgColorButton = ColorButton(Color(config.labelForegroundColor)).also { add(it) }
                     add(Box.createHorizontalGlue())
                 })
@@ -194,7 +194,7 @@ class FlashConfigurable : Configurable {
                 // 默认匹配项背景色
                 add(JPanel().apply {
                     layout = BoxLayout(this, BoxLayout.X_AXIS)
-                    add(JLabel("默认匹配项背景色: "))
+                    add(JLabel("Default Match Background: "))
                     defaultMatchBgColorButton = ColorButton(Color(config.defaultMatchBackgroundColor)).also { add(it) }
                     add(Box.createHorizontalGlue())
                 })
@@ -203,10 +203,10 @@ class FlashConfigurable : Configurable {
             add(Box.createVerticalStrut(10))
             
             // 复选框选项
-            showBackdropCheckbox = JCheckBox("显示背景遮罩", config.showBackdrop).also { add(it) }
-            autoJumpCheckbox = JCheckBox("自动跳转（仅一个匹配时）", config.autoJump).also { add(it) }
-            searchWholeFileCheckbox = JCheckBox("搜索整个文件", config.searchWholeFile).also { add(it) }
-            multiWindowCheckbox = JCheckBox("在多窗口中搜索", config.multiWindow).also { add(it) }
+            showBackdropCheckbox = JCheckBox("Show Backdrop", config.showBackdrop).also { add(it) }
+            autoJumpCheckbox = JCheckBox("Auto Jump (when there is one match)", config.autoJump).also { add(it) }
+            searchWholeFileCheckbox = JCheckBox("Search Entire File", config.searchWholeFile).also { add(it) }
+            multiWindowCheckbox = JCheckBox("Search Across Multiple Windows", config.multiWindow).also { add(it) }
             
             add(Box.createVerticalGlue())
         }
