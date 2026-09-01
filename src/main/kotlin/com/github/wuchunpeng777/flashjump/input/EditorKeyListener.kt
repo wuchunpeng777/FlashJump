@@ -1,12 +1,12 @@
 package com.github.wuchunpeng777.flashjump.input
 
-import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.TypedAction
 import com.intellij.openapi.editor.actionSystem.TypedActionHandler
 import com.intellij.openapi.diagnostic.Logger
-import java.awt.AWTEvent
+import java.awt.KeyEventDispatcher
+import java.awt.KeyboardFocusManager
 import java.awt.event.KeyEvent
 
 /**
@@ -28,7 +28,7 @@ internal object EditorKeyListener : TypedActionHandler {
     private val attached = mutableMapOf<Editor, TypedActionHandler>()
     private val specialHandlers = mutableMapOf<Editor, SpecialKeyHandler>()
     private var originalHandler: TypedActionHandler? = null
-    private var eventDispatcher: IdeEventQueue.EventDispatcher? = null
+    private var keyEventDispatcher: KeyEventDispatcher? = null
     
     override fun execute(editor: Editor, charTyped: Char, dataContext: DataContext) {
         val handler = attached[editor]
@@ -54,15 +54,14 @@ internal object EditorKeyListener : TypedActionHandler {
         
         attached[editor] = callback
         
-        // 添加特殊按键监听（使用 IdeEventQueue 在最早阶段拦截）
+        // 添加特殊按键监听，在焦点组件处理前拦截键盘事件
         if (specialCallback != null) {
             specialHandlers[editor] = specialCallback
             
-            if (eventDispatcher == null) {
-                eventDispatcher = IdeEventQueue.EventDispatcher { event ->
-                    handleEvent(event)
-                }
-                IdeEventQueue.getInstance().addDispatcher(eventDispatcher!!, null)
+            if (keyEventDispatcher == null) {
+                val dispatcher = KeyEventDispatcher(::handleEvent)
+                KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(dispatcher)
+                keyEventDispatcher = dispatcher
                 LOG.info("FlashJump: registered event dispatcher")
             }
         }
@@ -71,8 +70,8 @@ internal object EditorKeyListener : TypedActionHandler {
     /**
      * 处理事件
      */
-    private fun handleEvent(event: AWTEvent): Boolean {
-        if (event !is KeyEvent || event.id != KeyEvent.KEY_PRESSED) {
+    private fun handleEvent(event: KeyEvent): Boolean {
+        if (event.id != KeyEvent.KEY_PRESSED) {
             return false
         }
         
@@ -119,10 +118,9 @@ internal object EditorKeyListener : TypedActionHandler {
             originalHandler?.let(TypedAction.getInstance()::setupRawHandler)
             originalHandler = null
             
-            // 移除事件分发器
-            eventDispatcher?.let {
-                IdeEventQueue.getInstance().removeDispatcher(it)
-                eventDispatcher = null
+            keyEventDispatcher?.let {
+                KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(it)
+                keyEventDispatcher = null
                 LOG.info("FlashJump: removed event dispatcher")
             }
             

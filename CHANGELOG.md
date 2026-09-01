@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-01
+
+### Fixed
+
+- Replaced deprecated IntelliJ event queue dispatcher APIs with standard keyboard event dispatching.
+
 ## [0.0.5] - 2026-08-22
 
 ### Changed
